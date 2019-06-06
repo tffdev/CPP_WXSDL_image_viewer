@@ -1,7 +1,7 @@
 WX/SDL Image Viewer
 ====================
 Proof-of-concept image viewer demo for a basic interface between WxWidgets and SDL.
-Currently only supports software rendering (very slow) and JPEG image files.
+Currently only supports software rendering (very slow if images are modulated through rotation or flipping).
 
 Dependencies:
 * SDL2.0
