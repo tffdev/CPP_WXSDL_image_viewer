@@ -17,11 +17,12 @@ class SDLPanel : public wxPanel {
   DECLARE_CLASS(SDLPanel)
   DECLARE_EVENT_TABLE()
 
- private:
+private:
   SDL_Surface* screen;
   SDL_Renderer* renderer;
   SDL_Texture* loadedTexture;
   bool buffer_shouldResize;
+  bool buffer_screenHasBeenInitialised;
   float scale;
 
   void OnPaint(wxPaintEvent& event);

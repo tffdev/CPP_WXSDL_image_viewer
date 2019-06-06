@@ -21,7 +21,6 @@ END_EVENT_TABLE()
 SDLPanel::SDLPanel(wxFrame* parent) : wxPanel(parent, 0) {
   SDL_Init(SDL_INIT_VIDEO);
   IMG_Init(IMG_INIT_PNG);
-  InitScreen();
 }
 
 /**
@@ -46,14 +45,22 @@ wxPoint SDLPanel::GetMousePosition() {
  * draws the appropriately-scaled image in the center of the canvas.
  */
 void SDLPanel::OnPaint(wxPaintEvent&) {
-  Repaint();
-  /* Present the rendered surface */
-  Present();
+  /* Repaint + Present the rendered surface */
+  if(buffer_screenHasBeenInitialised) {
+    Repaint();
+    Present();
+  }
 }
 
 /**
  * Paint the texture onto a screen
  * ~> Added mouse position debug
+ * 
+ * NOTES:
+ * ~> This works well, but if SDL_RenderCopyEx applies any modulations
+ *    (flipping, or rotation) then zooming in on an image increases resource
+ *    usage dramatically. If we want to support flipping/rotating sprites,
+ *    another solution will need to be found.
  */
 void SDLPanel::Repaint() {
   /* Clear screen */
@@ -77,7 +84,9 @@ void SDLPanel::Repaint() {
                               (height / 2) - (onscreen_height / 2),
                               (onscreen_width), (onscreen_height)};
 
-    SDL_RenderCopy(renderer, loadedTexture, &src_rect, &onscreen_rect);
+    if(SDL_RenderCopyEx(renderer, loadedTexture, &src_rect, &onscreen_rect, 
+      0, NULL, SDL_FLIP_NONE)!=0)
+      printf("Render copy error: %s\n", SDL_GetError());
   }
 
   /* Draw debug mouse position */
@@ -116,12 +125,14 @@ void SDLPanel::InitScreen() {
   if (width == 0 || height == 0)
     return;
 
+  SDL_DestroyRenderer(renderer);
   SDL_FreeSurface(screen);
   screen = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0, 0, 0, 0);
   renderer = SDL_CreateSoftwareRenderer(screen);
+  buffer_screenHasBeenInitialised = true;
 }
 
-/*
+/**
  * Load an image into loadedTexture given an absolute filepath.
  */
 void SDLPanel::LoadImage(const char* string) {
