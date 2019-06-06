@@ -21,7 +21,7 @@ class SDLPanel : public wxPanel {
   SDL_Surface* screen;
   SDL_Renderer* renderer;
   SDL_Texture* loadedTexture;
-
+  bool buffer_shouldResize;
   float scale;
 
   void OnPaint(wxPaintEvent& event);

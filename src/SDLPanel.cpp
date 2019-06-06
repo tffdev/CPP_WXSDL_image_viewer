@@ -110,6 +110,7 @@ void SDLPanel::Present() {
  *    Any way to bypass this and use real rendering?
  */
 void SDLPanel::InitScreen() {
+  printf("Initialising screen\n");
   int width, height;
   GetSize(&width, &height);
   if (width == 0 || height == 0)
@@ -138,12 +139,18 @@ void SDLPanel::LoadImage(const char* string) {
  * On a resize, re-initialize the renderer with the new window dimensions.
  */
 void SDLPanel::Resize(wxSizeEvent& e) {
-  InitScreen();
+  buffer_shouldResize = true;
 }
 
 void SDLPanel::OnIdle(wxIdleEvent& e) {
   Refresh(false);
-  wxMilliSleep(1000/MS_PER_FRAME);
+  
+  if(buffer_shouldResize) { 
+    InitScreen();
+    buffer_shouldResize = false;
+  }
+
+  wxMilliSleep(MS_PER_FRAME);
 }
 
 /**
